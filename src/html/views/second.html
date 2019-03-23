@@ -1,9 +1,23 @@
 <% var data = {
-  title: "Второй заголовок | Проект",
-  author: "Harrix"
+  title: "Webpack Start Template v.1",
+  author: "Emic"
 }; %>
+
 <%= _.template(require('./../includes/header.html').default)(data) %>
-
-<div class="container">Вторая страница.</div>
-
+<section class="section">
+  <div class="container">
+    <div class="row">
+      <div class="col-12">
+        <div class="text_wrapper">
+          <h1>Вторая страница</h1>
+          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Expedita repudiandae minus dolore blanditiis
+            aliquam sint dicta fuga illo debitis cumque, unde, consequatur quo quia perferendis atque iure maiores in
+            tempora? Lorem ipsum dolor sit amet consectetur adipisicing elit. Laborum mollitia neque eum! Mollitia
+            voluptates error aliquid, rerum iste maxime quos. Dolorem facilis dignissimos officiis velit voluptate totam
+            eligendi, doloribus aliquamvvvv</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 <%= _.template(require('./../includes/footer.html').default)(data) %>

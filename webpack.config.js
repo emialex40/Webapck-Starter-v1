@@ -1,10 +1,14 @@
 const path = require("path");
 const fs = require("fs");
+const argv = require('yargs').argv;
+const webpack = require('webpack');
 const CleanWebpackPlugin = require("clean-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
+const isDevelopment = argv.mode === 'development';
+const isProduction = !isDevelopment;
 
 function generateHtmlPlugins(templateDir) {
   const templateFiles = fs.readdirSync(path.resolve(__dirname, templateDir));
@@ -28,7 +32,7 @@ const config = {
     filename: "./js/index.js"
   },
   devtool: "source-map",
-  mode: "production",
+  mode: "development",
   optimization: {
     minimizer: [
       new TerserPlugin({
@@ -43,10 +47,7 @@ const config = {
         test: /\.(sass|scss)$/,
         include: path.resolve(__dirname, "src/sass"),
         use: [
-          {
-            loader: MiniCssExtractPlugin.loader,
-            options: {}
-          },
+          MiniCssExtractPlugin.loader,
           {
             loader: "css-loader",
             options: {
@@ -60,16 +61,10 @@ const config = {
               ident: "postcss",
               sourceMap: true,
               plugins: () => [
-                require("cssnano")({
-                  preset: [
-                    "default",
-                    {
-                      discardComments: {
-                        removeAll: true
-                      }
-                    }
-                  ]
-                })
+                require("autoprefixer")({
+                  browsers: ['ie >= 8', 'last 4 version']
+                }),
+                isProduction ? require('cssnano')({ preset: [ "default", {discardComments: {removeAll: true}}]}) : () => {}
               ]
             }
           },
@@ -88,9 +83,18 @@ const config = {
       }
     ]
   },
+  devServer: {
+    overlay: true
+  },
   plugins: [
+    new webpack.ProvidePlugin({
+      $: 'jquery',
+      jQuery: 'jquery',
+      'window.jQuery': 'jquery'
+    }),
     new MiniCssExtractPlugin({
-      filename: "./css/style.min.css"
+      filename: "./css/style.min.css",
+      allChunks: true
     }),
     new CopyWebpackPlugin([
       {
@@ -113,9 +117,11 @@ const config = {
   ].concat(htmlPlugins)
 };
 
+module.exports = config;
+
 module.exports = (env, argv) => {
   if (argv.mode === "production") {
     config.plugins.push(new CleanWebpackPlugin());
   }
   return config;
-};
+}
